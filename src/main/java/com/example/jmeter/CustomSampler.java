@@ -35,7 +35,7 @@ public class CustomSampler extends AbstractJavaSamplerClient implements Serializ
         String password = context.getParameter(PASSWORD);
 
         try {
-            loadTest = LoadTest.getInstance(node_addr, username, password);
+            loadTest = new LoadTest(node_addr, username, password);
         } catch (Exception e) {
             System.out.println("Unable to connect to Node");
         }
