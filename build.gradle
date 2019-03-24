@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    corda_release_group = "net.corda"
+    corda_release_version = "3.3-corda-local"
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // JMeter
+    compile 'org.apache.jmeter:ApacheJMeter_java:5.1'
+
+    // Corda integration dependencies
+    compile "$corda_release_group:corda-core:$corda_release_version"
+    compile "$corda_release_group:corda-rpc:$corda_release_version"
+}
