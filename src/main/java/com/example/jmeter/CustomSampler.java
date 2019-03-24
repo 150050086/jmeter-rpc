@@ -23,13 +23,9 @@ public class CustomSampler extends AbstractJavaSamplerClient implements Serializ
     private static final String IOU_VALUE = "iouValue";
     private static final String PARTY_NAME = "partyName";
 
-    public CustomSampler(){
-        super();
-        System.out.println("Custom Sampler created!");
-    }
-
     @Override
     public void setupTest(JavaSamplerContext context){
+        // Create RPC Connection
         String node_addr = context.getParameter(NODE_ADDR);
         String username = context.getParameter(USERNAME);
         String password = context.getParameter(PASSWORD);
@@ -40,6 +36,7 @@ public class CustomSampler extends AbstractJavaSamplerClient implements Serializ
             System.out.println("Unable to connect to Node");
         }
 
+        // It is generally recommended to do any initialization such as getting parameter values in the setupTest method rather than the runTest method in order to add as little overhead as possible to the test.
         iouValue = Integer.parseInt(context.getParameter(IOU_VALUE));
         otherParty = context.getParameter(PARTY_NAME);
         if(iouValue == 0) {
