@@ -3,13 +3,19 @@ package com.example.rpc;
 import net.corda.client.rpc.CordaRPCClient;
 import net.corda.client.rpc.CordaRPCClientConfiguration;
 import net.corda.client.rpc.CordaRPCConnection;
+import net.corda.core.concurrent.CordaFuture;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.utilities.NetworkHostAndPort;
 import net.corda.core.identity.CordaX500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import kotlin.jvm.functions.Function1;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 public class ClientRPC {
     private static final Logger logger = LoggerFactory.getLogger(ClientRPC.class);
@@ -34,18 +40,43 @@ public class ClientRPC {
             return false;
 
         try {
+            String rpcid = Integer.toString(RpcId.getRpcId());
+            /*
             final SignedTransaction signedTx = rpcOps
-                    .startTrackedFlowDynamic(com.example.flow.ExampleFlow.Initiator.class, iouValue, otherParty)
+                    .startTrackedFlowDynamicDebug(com.example.flow.ExampleFlow.Initiator.class, rpcid, iouValue, otherParty)
                     .getReturnValue()
                     .get();
+            */
 
+            final CordaFuture future = rpcOps
+                    .startTrackedFlowDynamicDebug(com.example.flow.ExampleFlow.Initiator.class, rpcid, iouValue, otherParty)
+                    .getReturnValue();
+
+            future.then(new Function1<CordaFuture, Void>() {
+                @Override
+                public Void invoke(CordaFuture f) {
+                    try {
+                        long start = System.currentTimeMillis();
+                        String home_dir = System.getProperty("user.home");
+                        BufferedWriter out = new BufferedWriter(new FileWriter(Paths.get(home_dir, "PartyA_rpc.log").toString(), true));
+                        out.write("RPC_REQUEST_END " + rpcid + " " + Long.toString(start) + "\n");
+                        out.close();
+                    }
+                    catch (IOException e) {
+                        System.out.println("exception occoured" + e);
+                    }
+                    return null;
+                }
+            });
+
+            future.get();
             return true;
 
         } catch (Throwable ex) {
             final String msg = ex.getMessage();
-            logger.error(ex.getMessage(), ex);
+            System.out.println(msg);
+            logger.error(msg, ex);
             return false;
         }
-
     }
 }
