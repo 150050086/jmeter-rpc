@@ -6,6 +6,8 @@ import net.corda.client.rpc.CordaRPCConnection;
 import net.corda.core.concurrent.CordaFuture;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.messaging.FlowHandle;
+import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.utilities.NetworkHostAndPort;
 import net.corda.core.identity.CordaX500Name;
 import org.slf4j.Logger;
@@ -40,7 +42,6 @@ public class ClientRPC {
             return false;
 
         try {
-            String rpcid = Integer.toString(RpcId.getRpcId());
             /*
             final SignedTransaction signedTx = rpcOps
                     .startTrackedFlowDynamicDebug(com.example.flow.ExampleFlow.Initiator.class, rpcid, iouValue, otherParty)
@@ -48,24 +49,25 @@ public class ClientRPC {
                     .get();
             */
 
-            final CordaFuture future = rpcOps
-                    .startTrackedFlowDynamicDebug(com.example.flow.ExampleFlow.Initiator.class, rpcid, iouValue, otherParty)
-                    .getReturnValue();
+            final FlowHandle<SignedTransaction> handle = rpcOps
+                    .startFlowDynamic(com.example.flow.ExampleFlow.Initiator.class, iouValue, otherParty);
+            final String flowid = handle.getId().toString();
+            final CordaFuture<SignedTransaction> future = handle.getReturnValue();
 
-            future.then(new Function1<CordaFuture, Void>() {
+            future.then(new Function1<CordaFuture<SignedTransaction>, Void>() {
                 @Override
                 public Void invoke(CordaFuture f) {
                     try {
                         long start = System.currentTimeMillis();
                         String home_dir = System.getProperty("user.home");
-                        BufferedWriter out = new BufferedWriter(new FileWriter(Paths.get(home_dir, "PartyA_rpc.log").toString(), true));
-                        out.write("RPC_REQUEST_END " + rpcid + " " + Long.toString(start) + "\n");
+                        BufferedWriter out = new BufferedWriter(new FileWriter(Paths.get(home_dir, "Initiator.log").toString(), true));
+                        out.write("RPC_REQUEST_END " + flowid + " " + Long.toString(start) + "\n");
                         out.close();
                     }
                     catch (IOException e) {
-                        System.out.println("exception occoured" + e);
+                        System.out.println("Exception occurred" + e);
                     }
-                    return null;
+                    return (null);
                 }
             });
 
