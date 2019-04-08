@@ -42,13 +42,12 @@ public class ClientRPC {
             return false;
 
         try {
-            /*
             final SignedTransaction signedTx = rpcOps
-                    .startTrackedFlowDynamicDebug(com.example.flow.ExampleFlow.Initiator.class, rpcid, iouValue, otherParty)
+                    .startFlowDynamic(com.example.flow.ExampleFlow.Initiator.class, iouValue, otherParty)
                     .getReturnValue()
                     .get();
-            */
 
+            /*
             final FlowHandle<SignedTransaction> handle = rpcOps
                     .startFlowDynamic(com.example.flow.ExampleFlow.Initiator.class, iouValue, otherParty);
             final String flowid = handle.getId().toString();
@@ -72,6 +71,7 @@ public class ClientRPC {
             });
 
             future.get();
+            */
             return true;
 
         } catch (Throwable ex) {
