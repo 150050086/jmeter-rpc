@@ -21,12 +21,13 @@ import java.nio.file.Paths;
 
 public class ClientRPC {
     private static final Logger logger = LoggerFactory.getLogger(ClientRPC.class);
+    private static CordaRPCConnection connection;
     private static CordaRPCOps rpcOps;
 
     public ClientRPC(String node_addr, String username, String password){
         final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse(node_addr);
         final CordaRPCClient client = new CordaRPCClient(nodeAddress, CordaRPCClientConfiguration.DEFAULT);
-        final CordaRPCConnection connection = client.start(username, password);
+        connection = client.start(username, password);
         rpcOps = connection.getProxy();
     }
 
@@ -72,6 +73,9 @@ public class ClientRPC {
 
             future.get();
             */
+
+            // Closing the connection is causing some errors, need to revisit this!
+            //connection.notifyServerAndClose();
             return true;
 
         } catch (Throwable ex) {
